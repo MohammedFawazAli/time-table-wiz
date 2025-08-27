@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -52,16 +53,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				}
+				'timetable-header': 'hsl(var(--timetable-header))',
+				'timetable-cell': 'hsl(var(--timetable-cell))',
+				'timetable-border': 'hsl(var(--timetable-border))',
+				'attendance-good': 'hsl(var(--attendance-good))',
+				'attendance-warning': 'hsl(var(--attendance-warning))',
+				'attendance-danger': 'hsl(var(--attendance-danger))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
