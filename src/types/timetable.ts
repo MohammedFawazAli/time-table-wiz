@@ -13,7 +13,14 @@ export interface AttendanceData {
   };
 }
 
+export interface DailyAttendance {
+  [date: string]: {
+    [subject: string]: 'present' | 'absent';
+  };
+}
+
 export interface AppData {
   timetable: TimetableEntry[];
   attendance: AttendanceData;
+  dailyAttendance?: DailyAttendance;
 }

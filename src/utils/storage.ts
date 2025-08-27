@@ -1,5 +1,5 @@
 
-import { AppData, TimetableEntry, AttendanceData } from '../types/timetable';
+import { AppData, TimetableEntry, AttendanceData, DailyAttendance } from '../types/timetable';
 
 const STORAGE_KEY = 'timetable-app-data';
 
@@ -15,7 +15,12 @@ export const loadData = (): AppData => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const data = JSON.parse(stored);
+      // Ensure dailyAttendance exists
+      if (!data.dailyAttendance) {
+        data.dailyAttendance = {};
+      }
+      return data;
     }
   } catch (error) {
     console.error('Failed to load data:', error);
@@ -23,7 +28,8 @@ export const loadData = (): AppData => {
   
   return {
     timetable: [],
-    attendance: {}
+    attendance: {},
+    dailyAttendance: {}
   };
 };
 
@@ -58,18 +64,53 @@ export const markAttendance = (
   isPresent: boolean
 ): AppData => {
   const attendance = { ...currentData.attendance };
+  const dailyAttendance = { ...currentData.dailyAttendance } || {};
+  const today = new Date().toDateString();
   
   if (!attendance[subject]) {
     attendance[subject] = { total: 0, present: 0 };
   }
   
-  attendance[subject].total += 1;
-  if (isPresent) {
-    attendance[subject].present += 1;
+  // Initialize daily attendance for today if it doesn't exist
+  if (!dailyAttendance[today]) {
+    dailyAttendance[today] = {};
   }
+  
+  // Check if attendance was already marked today for this subject
+  const alreadyMarked = dailyAttendance[today][subject];
+  
+  if (!alreadyMarked) {
+    // First time marking attendance for this subject today
+    attendance[subject].total += 1;
+    if (isPresent) {
+      attendance[subject].present += 1;
+    }
+  } else {
+    // Update existing attendance
+    if (alreadyMarked === 'present' && !isPresent) {
+      // Was present, now absent
+      attendance[subject].present -= 1;
+    } else if (alreadyMarked === 'absent' && isPresent) {
+      // Was absent, now present
+      attendance[subject].present += 1;
+    }
+  }
+  
+  // Update daily attendance
+  dailyAttendance[today][subject] = isPresent ? 'present' : 'absent';
   
   return {
     ...currentData,
-    attendance
+    attendance,
+    dailyAttendance
   };
+};
+
+export const getDailyAttendanceStatus = (
+  dailyAttendance: DailyAttendance,
+  subject: string,
+  date?: string
+): 'none' | 'present' | 'absent' => {
+  const targetDate = date || new Date().toDateString();
+  return dailyAttendance[targetDate]?.[subject] || 'none';
 };
