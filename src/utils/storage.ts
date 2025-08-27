@@ -47,9 +47,21 @@ export const updateTimetableEntry = (
   const updatedTimetable = [...currentData.timetable];
   
   if (existingIndex >= 0) {
-    updatedTimetable[existingIndex] = { day, time, subject, room };
+    updatedTimetable[existingIndex] = { 
+      day, 
+      time, 
+      subject, 
+      room, 
+      id: updatedTimetable[existingIndex].id || `${day}-${time}-0`
+    };
   } else {
-    updatedTimetable.push({ day, time, subject, room });
+    updatedTimetable.push({ 
+      day, 
+      time, 
+      subject, 
+      room, 
+      id: `${day}-${time}-0`
+    });
   }
   
   return {
@@ -61,7 +73,8 @@ export const updateTimetableEntry = (
 export const markAttendance = (
   currentData: AppData,
   subject: string,
-  isPresent: boolean
+  isPresent: boolean,
+  classId?: string
 ): AppData => {
   const attendance = { ...currentData.attendance };
   const dailyAttendance = { ...currentData.dailyAttendance };
@@ -76,11 +89,12 @@ export const markAttendance = (
     dailyAttendance[today] = {};
   }
   
-  // Check if attendance was already marked today for this subject
-  const alreadyMarked = dailyAttendance[today][subject];
+  // Use classId for individual class tracking, fallback to subject for backward compatibility
+  const attendanceKey = classId || subject;
+  const alreadyMarked = dailyAttendance[today][attendanceKey];
   
   if (!alreadyMarked) {
-    // First time marking attendance for this subject today
+    // First time marking attendance for this class today
     attendance[subject].total += 1;
     if (isPresent) {
       attendance[subject].present += 1;
@@ -97,7 +111,7 @@ export const markAttendance = (
   }
   
   // Update daily attendance
-  dailyAttendance[today][subject] = isPresent ? 'present' : 'absent';
+  dailyAttendance[today][attendanceKey] = isPresent ? 'present' : 'absent';
   
   return {
     ...currentData,
@@ -109,8 +123,33 @@ export const markAttendance = (
 export const getDailyAttendanceStatus = (
   dailyAttendance: DailyAttendance,
   subject: string,
-  date?: string
+  date?: string,
+  classId?: string
 ): 'none' | 'present' | 'absent' => {
   const targetDate = date || new Date().toDateString();
-  return dailyAttendance[targetDate]?.[subject] || 'none';
+  const attendanceKey = classId || subject;
+  return dailyAttendance[targetDate]?.[attendanceKey] || 'none';
+};
+
+export const updateAttendanceManually = (
+  currentData: AppData,
+  subject: string,
+  newTotal: number,
+  newPresent: number
+): AppData => {
+  const attendance = { ...currentData.attendance };
+  
+  if (!attendance[subject]) {
+    attendance[subject] = { total: 0, present: 0 };
+  }
+  
+  attendance[subject] = {
+    total: Math.max(0, newTotal),
+    present: Math.max(0, Math.min(newPresent, newTotal))
+  };
+  
+  return {
+    ...currentData,
+    attendance
+  };
 };

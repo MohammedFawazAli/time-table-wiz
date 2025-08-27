@@ -1,17 +1,21 @@
 
-import React from 'react';
-import { BookOpen, TrendingUp, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, TrendingUp, AlertTriangle, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { AppData } from '../types/timetable';
+import { updateAttendanceManually } from '../utils/storage';
+import EditAttendanceModal from './EditAttendanceModal';
 
 interface SubjectsScreenProps {
   appData: AppData;
   onDataUpdate: (data: AppData) => void;
 }
 
-const SubjectsScreen: React.FC<SubjectsScreenProps> = ({ appData }) => {
+const SubjectsScreen: React.FC<SubjectsScreenProps> = ({ appData, onDataUpdate }) => {
+  const [editingSubject, setEditingSubject] = useState<string | null>(null);
   const THRESHOLD = 75; // 75% attendance threshold
 
   const calculateSubjectStats = (subject: string) => {
@@ -58,6 +62,11 @@ const SubjectsScreen: React.FC<SubjectsScreenProps> = ({ appData }) => {
     };
   };
 
+  const handleEditAttendance = (subject: string, total: number, present: number) => {
+    const updatedData = updateAttendanceManually(appData, subject, total, present);
+    onDataUpdate(updatedData);
+  };
+
   // Get all unique subjects from timetable
   const allSubjects = Array.from(new Set(appData.timetable.map(entry => entry.subject)));
   
@@ -102,12 +111,21 @@ const SubjectsScreen: React.FC<SubjectsScreenProps> = ({ appData }) => {
                   {/* Subject Header */}
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-lg">{subject}</h3>
-                    <Badge 
-                      variant={stats.status === 'good' ? 'default' : 
-                              stats.status === 'warning' ? 'secondary' : 'destructive'}
-                    >
-                      {stats.percentage.toFixed(1)}%
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant={stats.status === 'good' ? 'default' : 
+                                stats.status === 'warning' ? 'secondary' : 'destructive'}
+                      >
+                        {stats.percentage.toFixed(1)}%
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingSubject(subject)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Stats Display */}
@@ -159,6 +177,18 @@ const SubjectsScreen: React.FC<SubjectsScreenProps> = ({ appData }) => {
           );
         })}
       </div>
+
+      {/* Edit Attendance Modal */}
+      {editingSubject && (
+        <EditAttendanceModal
+          isOpen={true}
+          onClose={() => setEditingSubject(null)}
+          subject={editingSubject}
+          currentTotal={appData.attendance[editingSubject]?.total || 0}
+          currentPresent={appData.attendance[editingSubject]?.present || 0}
+          onSave={(total, present) => handleEditAttendance(editingSubject, total, present)}
+        />
+      )}
     </div>
   );
 };

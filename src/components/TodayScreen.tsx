@@ -29,12 +29,12 @@ const TodayScreen: React.FC<TodayScreenProps> = ({ appData, onDataUpdate }) => {
       });
   };
 
-  const getAttendanceStatus = (subject: string): 'none' | 'present' | 'absent' => {
+  const getAttendanceStatus = (subject: string, classId?: string): 'none' | 'present' | 'absent' => {
     if (!appData.dailyAttendance) return 'none';
-    return getDailyAttendanceStatus(appData.dailyAttendance, subject);
+    return getDailyAttendanceStatus(appData.dailyAttendance, subject, undefined, classId);
   };
 
-  const handleAttendanceToggle = (subject: string, currentStatus: 'none' | 'present' | 'absent') => {
+  const handleAttendanceToggle = (subject: string, currentStatus: 'none' | 'present' | 'absent', classId?: string) => {
     let newStatus: 'present' | 'absent';
     
     if (currentStatus === 'none' || currentStatus === 'absent') {
@@ -44,7 +44,7 @@ const TodayScreen: React.FC<TodayScreenProps> = ({ appData, onDataUpdate }) => {
     }
 
     const isPresent = newStatus === 'present';
-    const updatedData = markAttendance(appData, subject, isPresent);
+    const updatedData = markAttendance(appData, subject, isPresent, classId);
     onDataUpdate(updatedData);
   };
 
@@ -86,10 +86,10 @@ const TodayScreen: React.FC<TodayScreenProps> = ({ appData, onDataUpdate }) => {
 
       <div className="space-y-3">
         {todayClasses.map((classItem, index) => {
-          const attendanceStatus = getAttendanceStatus(classItem.subject);
+          const attendanceStatus = getAttendanceStatus(classItem.subject, classItem.id);
           
           return (
-            <Card key={index} className="overflow-hidden">
+            <Card key={classItem.id || `${classItem.day}-${classItem.time}-${index}`} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex items-center">
                   {/* Time */}
@@ -113,7 +113,7 @@ const TodayScreen: React.FC<TodayScreenProps> = ({ appData, onDataUpdate }) => {
                               attendanceStatus === 'absent' ? "destructive" : "outline"}
                       size="sm"
                       className="min-w-[100px] gap-2"
-                      onClick={() => handleAttendanceToggle(classItem.subject, attendanceStatus)}
+                      onClick={() => handleAttendanceToggle(classItem.subject, attendanceStatus, classItem.id)}
                     >
                       {attendanceStatus === 'present' && (
                         <>

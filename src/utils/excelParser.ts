@@ -31,19 +31,24 @@ export const parseExcelFile = (file: File): Promise<TimetableEntry[]> => {
             if (time) {
               for (let j = 1; j < row.length && j <= days.length; j++) {
                 const cellValue = row[j];
-                if (cellValue && cellValue.trim() !== '') {
+                // Skip empty cells, undefined values, or cells that only contain whitespace
+                if (cellValue && typeof cellValue === 'string' && cellValue.trim() !== '') {
                   // Parse subject and room from cell value
                   // Expected format: "Subject (Room)" or just "Subject"
                   const match = cellValue.match(/^(.+?)\s*\((.+?)\)\s*$/);
                   const subject = match ? match[1].trim() : cellValue.trim();
                   const room = match ? match[2].trim() : '';
                   
-                  timetable.push({
-                    day: days[j - 1],
-                    time: time.toString(),
-                    subject,
-                    room
-                  });
+                  // Only add if subject is not empty after trimming
+                  if (subject) {
+                    timetable.push({
+                      day: days[j - 1],
+                      time: time.toString(),
+                      subject,
+                      room,
+                      id: `${days[j - 1]}-${time}-${j}` // Add unique ID for each entry
+                    });
+                  }
                 }
               }
             }
@@ -62,10 +67,10 @@ export const parseExcelFile = (file: File): Promise<TimetableEntry[]> => {
 };
 
 export const generatePreviewData = (timetable: TimetableEntry[]): string[][] => {
-  // Create a preview showing first 5 entries in a readable format
+  // Show all entries instead of just first 5
   const preview = [['Day', 'Time', 'Subject', 'Room']];
   
-  timetable.slice(0, 5).forEach(entry => {
+  timetable.forEach(entry => {
     preview.push([entry.day, entry.time, entry.subject, entry.room]);
   });
   

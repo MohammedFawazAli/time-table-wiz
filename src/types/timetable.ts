@@ -1,9 +1,9 @@
-
 export interface TimetableEntry {
   day: string;
   time: string;
   subject: string;
   room: string;
+  id?: string; // Add unique identifier for each entry
 }
 
 export interface AttendanceData {
