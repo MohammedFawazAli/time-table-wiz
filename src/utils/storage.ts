@@ -64,7 +64,7 @@ export const markAttendance = (
   isPresent: boolean
 ): AppData => {
   const attendance = { ...currentData.attendance };
-  const dailyAttendance = { ...currentData.dailyAttendance } || {};
+  const dailyAttendance = { ...currentData.dailyAttendance };
   const today = new Date().toDateString();
   
   if (!attendance[subject]) {
