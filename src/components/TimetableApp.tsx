@@ -10,6 +10,7 @@ import TimetableScreen from './TimetableScreen';
 import AttendanceScreen from './AttendanceScreen';
 import TodayScreen from './TodayScreen';
 import SubjectsScreen from './SubjectsScreen';
+import TimetableNotification from './TimetableNotification';
 
 type Tab = 'today' | 'timetable' | 'calendar' | 'subjects' | 'upload';
 
@@ -50,6 +51,7 @@ const TimetableApp: React.FC = () => {
         </div>
 
         {/* Content */}
+        <TimetableNotification appData={appData} />
         <div className="p-4 min-h-[calc(100vh-140px)]">
           {activeTab === 'today' && (
             <TodayScreen

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { AppData, TimetableEntry } from '../types/timetable';
 import { parseExcelFile, generatePreviewData } from '../utils/excelParser';
 import { toast } from '@/hooks/use-toast';
@@ -183,30 +184,32 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ appData, onDataUpdate, onSu
             <p className="text-sm text-muted-foreground">
               Found {parsedTimetable.length} classes. Preview of first 5 entries:
             </p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse border border-border rounded-lg">
-                <thead>
-                  <tr className="bg-muted">
-                    {previewData[0]?.map((header, index) => (
-                      <th key={index} className="border border-border p-2 text-left font-medium">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewData.slice(1).map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {row.map((cell, cellIndex) => (
-                        <td key={cellIndex} className="border border-border p-2">
-                          {cell}
-                        </td>
+            <ScrollArea className="h-[400px] w-full border rounded-lg">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="bg-muted">
+                      {previewData[0]?.map((header, index) => (
+                        <th key={index} className="border border-border p-2 text-left font-medium min-w-[120px]">
+                          {header}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {previewData.slice(1).map((row, rowIndex) => (
+                      <tr key={rowIndex} className="hover:bg-accent/50">
+                        {row.map((cell, cellIndex) => (
+                          <td key={cellIndex} className="border border-border p-2 min-w-[120px]">
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </ScrollArea>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPreviewDialog(false)}>
