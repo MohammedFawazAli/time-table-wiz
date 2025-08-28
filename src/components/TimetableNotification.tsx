@@ -136,34 +136,19 @@ const TimetableNotification: React.FC<TimetableNotificationProps> = ({ appData }
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1">
           {todayClasses.map((classItem, index) => (
-            <React.Fragment key={`${classItem.day}-${classItem.time}-${index}`}>
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="flex items-center gap-1 text-xs text-primary font-medium min-w-[60px]">
-                    <Clock className="w-3 h-3" />
-                    {classItem.time}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="font-medium text-sm text-foreground">
-                      {classItem.subject}
-                    </div>
-                    {classItem.room && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                        <MapPin className="w-3 h-3" />
-                        {classItem.room}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {index < todayClasses.length - 1 && (
-                <Separator className="opacity-30" />
-              )}
-            </React.Fragment>
+            <div key={`${classItem.day}-${classItem.time}-${index}`} className="flex items-center gap-2 py-1">
+              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                Class {index + 1}
+              </span>
+              <span className="text-sm font-medium text-foreground">
+                {classItem.subject}
+              </span>
+              <span className="text-xs text-muted-foreground ml-auto">
+                {classItem.time}
+              </span>
+            </div>
           ))}
         </div>
 
